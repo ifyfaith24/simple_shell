@@ -112,9 +112,7 @@ _Bool update_cur_dir(config *build, int index);
 int env_function(config *build);
 int set_env_func(config *build);
 int unset_env_func(config *build);
-int is_valid_variable(char *var);
 int is_alpha(int c);
-char *create_buffer(char *key, char *value);
 
 /* --- help_funs --- */
 int help_function(config *build);
