@@ -1,185 +1,236 @@
-#ifndef SHELL_H
-#define SHELL_H
+#ifndef _SHELL_H_
+#define _SHELL_H_
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <sys/wait.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
+#include <limits.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <signal.h>
-#include <limits.h>
 
-/* --- Built-in Errors --- */
-#define BUFSIZE 256
-#define ENOSTRING 1106
-#define EILLEGAL 227
-#define EWSIZE 410
-#define ENOBUILTIN 415
-#define EBADCD 726
+#define BUF_SIZE 1024
+#define FLUSH_BUF -1
+#define CMD_INIT	0
+#define OR_CMD		1
+#define AND_CMD		2
+#define CHAIN_CMD	3
+#define C_LOWER	1
+#define C_UNSIGNED	2
+#define HISTORY_FILE	".history"
+#define MAX_HISTORY	4096
 
 extern char **environ;
 
 /**
- * struct linkedList - linked list data structure
- * @string: environ variable path name
- * @next: pointer to next node
+ * struct arraylst - singly linked list
+ * @key: the number field
+ * @val: a string
+ * @next: points to the next node
  */
-typedef struct linkedList
+typedef struct arraylst
 {
-    char *string;
-    struct linkedList *next;
-} linked_l;
+	int key;
+	char *val;
+	struct arraylst *next;
+} s_array;
 
 /**
- * struct configurations - configuration of build settings
- * @env: linked list of local env variables
- * @env_list: array of env variables to put into execve
- * @args: array of argument strings
- * @buffer: string buffer of user input
- * @path: array of $PATH locations
- * @full_path: string of path with correct prepended $PATH
- * @shell_name: name of shell (argv[0])
- * @count_line: counter of lines users have entered
- * @error_status: error status of last child process
+ * struct config - contains pseudo-arguments to pass into a function,
+ * allowing a uniform prototype for function pointer struct
+ * @arg: a string generated from getline containing arguments
+ * @argv: an array of strings generated from arg
+ * @path: a string path for the current command
+ * @argc: the argument count
+ * @error_count: the error count
+ * @err_code: the error code for exit()s
+ * @error_flag: if on count this line of input
+ * @file_name: the program filename
+ * @environ: custom modified copy of environ
+ * @env: linked list local copy of environ
+ * @history: the history node
+ * @alias: the alias node
+ * @env_flag: on if environ was changed
+ * @status: the return status of the last exec'd command
+ * @hsh_buf: address of pointer to hsh_buf, on if chaining
+ * @hsh_buf_type: Command type ||, &&, ;
+ * @input_fd: the fd from which to read line input
+ * @hist_count: the history line number count
  */
-typedef struct configurations
-{
-    linked_l *env;
-    char **env_list;
-    char **args;
-    char *buffer;
-    char *path;
-    char *full_path;
-    char *shell_name;
-    unsigned int count_line;
-    int error_status;
-} config;
+typedef struct config {
+  char *arg;
+  char **argv;
+  char *path;
+  int argc;
+  unsigned int error_count;
+  int err_code;
+  int error_flag;
+  char *file_name;
+  char **environ;
+  s_array *env;
+  int env_flag;
+  int status;
+  s_array *history;
+  s_array *alias;
+  char **hsh_buf;
+  int hsh_buf_type;
+  int input_fd;
+  int hist_count;
+} config_t;
+
+/* Initialization value for a `config_t` struct */
+#define CONFIG_INIT { \
+  NULL,     /* arg */ \
+  NULL,     /* argv */ \
+  NULL,     /* path */ \
+  0,        /* argc */ \
+  0,        /* error_count */ \
+  0,        /* err_code */ \
+  0,        /* error_flag */ \
+  NULL,     /* file_name */ \
+  NULL,     /* environ */ \
+  NULL,     /* env */ \
+  NULL,     /* history */ \
+  NULL,     /* alias */ \
+  0,        /* env_flag */ \
+  0,        /* status */ \
+  NULL,     /* hsh_buf */ \
+  0,        /* hsh_buf_type */ \
+  0,        /* input_fd */ \
+  0         /* hist_count */ \
+}
 
 /**
- * struct builtInCommands - commands and functions associated with it
- * @command: input command
- * @func: output function
+ * struct builtincmd - contains information about
+ * built-in command and its corresponding function
+ * @command: the name of the built-in command
+ * @handler: the function to handle the built-in command
  */
-typedef struct builtInCommands
-{
+typedef struct builtincmd {
     char *command;
-    int (*func)(config *build);
-} type_b;
+    int (*handler)(config_t *);
+} builtincmd_t;
 
-/* --- main --- */
-config *config_init(config *build);
 
-/* --- shell --- */
-void shell(config *build);
-int validate_input(config *build);
-void remove_comments(char *str);
-void fork_and_execute(config *build);
-void convert_llist_to_arr(config *build);
+int run_shell(config_t *, char **);
 
-/* shell_controls */
-void insert_null_bytes(char *str, unsigned int index);
-void display_prompt(void);
-void add_new_line(void);
-void signal_int(int sigint);
+int is_builtin(config_t *);
+void locate_cmd(config_t *);
+void fork_cmd(config_t *);
 
-/* --- built_ins --- */
-_Bool find_built_ins(config *build);
-int execute_exit(config *build);
-int execute_history(config *build);
-int execute_alias(config *build);
+/* toem_parser.c */
+int is_exec_cmd(config_t *, char *);
+char *copy_path (char *, int, int);
+char *get_cmd_path(config_t *, char *, char *);
 
-/* --- built_in_controls --- */
-int count_args(char **args);
-int _atoi(char *s);
+/* toem_errors.c */
+void err_puts(char *);
+int err_putchar(char);
+int put_fd(char c, int fd);
+int puts_fd(char *str, int fd);
 
-/* --- change_dir--- */
-int execute_cd(config *build);
-_Bool cd_to_home(config *build);
-_Bool cd_to_previous(config *build);
-_Bool cd_to_custom(config *build);
-_Bool update_environ(config *build);
+/* toem_string.c */
+int _strlen(char *);
+int _strcmp(char *, char *);
+char *starts_with(const char *, const char *);
+char *_strcat(char *, char *);
 
-/* --- change_dir2 --- */
-int update_old(config *build);
-_Bool update_cur_dir(config *build, int index);
+/* toem_string1.c */
+char *_strcpy(char *, char *);
+char *_strdup(const char *);
+void _puts(char *);
+int _putchar(char);
 
-/* --- env_variables --- */
-int env_function(config *build);
-int set_env_func(config *build);
-int unset_env_func(config *build);
-int is_alpha(int c);
+/* toem_exits.c */
+char *_strncpy(char *, char *, int);
+char *_strncat(char *, char *, int);
+char *_strchr(char *, char);
 
-/* --- help_funs --- */
-int help_function(config *build);
-int display_help_menu(void);
-int help_guide_exit(config *build);
-int help_env(config *build);
-int help_history(config *build);
+/* toem_tokenizer.c */
+char **strtow(char *, char *);
+char **strtow2(char *, char);
 
-/* --- help_funs2 --- */
-int help_alias(config *build);
-int help_cd(config *biuld);
-int help_set_env(config *build);
-int help_unset_env(config *build);
-int help_guide(config *build);
+/* toem_realloc.c */
+char *_memset(char *, char, unsigned int);
+void ffree(char **);
+void *_realloc(void *, unsigned int, unsigned int);
 
-/* _getenv */
-char *_getenv(char *input, char **environ);
+/* toem_memory.c */
+int free_ptr(void **);
 
-/* handle_errors - managing wrong user inputs*/
-void handle_errors(config *build);
-char *get_error_message(void);
-unsigned int count_num_digits(unsigned int num);
-char *itoa(unsigned int num);
+/* toem_atoi.c */
+int is_interactive(config_t *);
+int is_delim(char, char *);
+int _isalpha(int);
+int _atoi(char *);
 
-/* --- free --- */
-void free_member(config *build);
-void free_list(linked_l *head);
-void free_args(char **args);
-void free_args_and_buffer(config *build);
+/* toem_errors1.c */
+int safe_atoi(char *);
+void print_error(config_t *, char *);
+int print_d(int, int);
+char *num_to_string(long int, int, int);
+void strip_comments(char *);
 
-/* --- split_string --- */
-_Bool split_string(config *build);
-unsigned int count_words(char *str);
-_Bool is_space(char c);
+/* toem_builtin.c */
+int builtin_exit(config_t *);
+int builtin_cd(config_t *);
+int builtin_help(config_t *);
 
-/* --- strings --- */
-int _strlen(char *s);
-char *_strcat(char *dest, char *src);
-int _strcmp(char *s1, char *s2);
-char *_strdup(char *str);
-char *_strcpy(char *dest, char *src);
+/* toem_builtin1.c */
+int builtin_history(config_t *);
+int builtin_alias(config_t *);
 
-/* --- strings2 --- */
-char *_strtok(char *str, char *delim);
-int _strcspn(char *str, char *c);
-char *_strchr(char *str, char ch);
+/*toemread_line .c */
+ssize_t get_cmd_input(config_t *);
+int read_line (config_t *, char **, size_t *);
+void handle_sigint(int);
 
-/* --- path --- */
-_Bool search_path(config *);
-_Bool validate_constraints(config *build);
-char *create_buffer(char *dir, char *cmd);
+/* toem_getinfo.c */
+void clear_config(config_t *);
+void set_config(config_t *, char **);
+void free_config(config_t *, int);
 
-/* --- linked_list --- */
-linked_l *add_node_to_front(linked_l **head, char *str);
-linked_l *add_node_to_end(linked_l **head, char *str);
-size_t print_list(const linked_l *h);
-int delete_node_at_index(linked_l **head, unsigned int index);
-size_t list_len(linked_l *h);
+/* toem_environ.c */
+char *get_env_value(config_t *, const char *);
+int builtin_env(config_t *);
+int builtin_setenv(config_t *);
+int builtin_unsetenv(config_t *);
+int fill_env_list(config_t *);
 
-/* --- linkedlist_funs2 --- */
-int find_node(linked_l *head, char *str);
-linked_l *generateLinkedList(char **array);
-linked_l *add_node_at_index(linked_l **head, int index, char *str);
-char *get_node_at_index(linked_l *head, unsigned int index);
+/* toemget_env_value.c */
+char **get_environ(config_t *);
+int _unsetenv(config_t *, char *);
+int _setenv(config_t *, char *, char *);
 
-/* --- _realloc --- */
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
-char *_memcpy(char *dest, const char *src, unsigned int n);
+/* toem_history.c */
+char *fetch_history_file(config_t *config);
+int save_history(config_t *config);
+int load_history(config_t *config);
+int add_history_entry(config_t *config, char *buf, int linecount);
+int update_hist_nums(config_t *config);
+
+/* toem_lists.c */
+s_array *add_node(s_array **, const char *, int);
+s_array *add_node_end(s_array **, const char *, int);
+size_t print_list_str(const s_array *);
+int delete_node_at_index(s_array **, unsigned int);
+void free_list(s_array **);
+
+/* toem_lists1.c */
+size_t list_len(const s_array *);
+char **list_to_strings(s_array *);
+size_t print_list(const s_array *);
+s_array *node_starts_with(s_array *, char *, char);
+ssize_t get_node_index(s_array *, s_array *);
+
+int is_chain_delim(config_t *, char *, size_t *);
+void update_chain_pos(config_t *, char *, size_t *, size_t, size_t);
+int change_alias(config_t *);
+int change_vars(config_t *);
+int update_string(char **, char *);
+
 
 #endif
