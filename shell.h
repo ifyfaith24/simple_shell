@@ -60,47 +60,48 @@ typedef struct arraylst
  * @input_fd: the fd from which to read line input
  * @hist_count: the history line number count
  */
-typedef struct config {
-  char *arg;
-  char **argv;
-  char *path;
-  int argc;
-  unsigned int error_count;
-  int err_code;
-  int error_flag;
-  char *file_name;
-  char **environ;
-  s_array *env;
-  int env_flag;
-  int status;
-  s_array *history;
-  s_array *alias;
-  char **hsh_buf;
-  int hsh_buf_type;
-  int input_fd;
-  int hist_count;
+typedef struct config
+{
+	char *arg;
+	char **argv;
+	char *path;
+	int argc;
+	unsigned int error_count;
+	int err_code;
+	int error_flag;
+	char *file_name;
+	char **environ;
+	s_array *env;
+	int env_flag;
+	int status;
+	s_array *history;
+	s_array *alias;
+	char **hsh_buf;
+	int hsh_buf_type;
+	int input_fd;
+	int hist_count;
 } config_t;
 
 /* Initialization value for a `config_t` struct */
 #define CONFIG_INIT { \
-  NULL,     /* arg */ \
-  NULL,     /* argv */ \
-  NULL,     /* path */ \
-  0,        /* argc */ \
-  0,        /* error_count */ \
-  0,        /* err_code */ \
-  0,        /* error_flag */ \
-  NULL,     /* file_name */ \
-  NULL,     /* environ */ \
-  NULL,     /* env */ \
-  NULL,     /* history */ \
-  NULL,     /* alias */ \
-  0,        /* env_flag */ \
-  0,        /* status */ \
-  NULL,     /* hsh_buf */ \
-  0,        /* hsh_buf_type */ \
-  0,        /* input_fd */ \
-  0         /* hist_count */ \
+	NULL,     /* arg */ \
+	NULL,     /* argv */ \
+	NULL,     /* path */ \
+	0,        /* argc */ \
+	0,        /* error_count */ \
+	0,        /* err_code */ \
+	0,        /* error_flag */ \
+	NULL,     /* file_name */ \
+	NULL,     /* environ */ \
+	NULL,     /* env */ \
+	NULL,     /* history */ \
+	NULL,     /* alias */ \
+	0,        /* env_flag */ \
+	0,        /* status */ \
+	NULL,     /* hsh_buf */ \
+	0,        /* hsh_buf_type */ \
+	0,        /* input_fd */ \
+	0         /* hist_count */ \
 }
 
 /**
@@ -109,9 +110,10 @@ typedef struct config {
  * @command: the name of the built-in command
  * @handler: the function to handle the built-in command
  */
-typedef struct builtincmd {
-    char *command;
-    int (*handler)(config_t *);
+typedef struct builtincmd
+{
+	char *command;
+	int (*handler)(config_t *);
 } builtincmd_t;
 
 
@@ -123,7 +125,7 @@ void fork_cmd(config_t *);
 
 /* toem_parser.c */
 int is_exec_cmd(config_t *, char *);
-char *copy_path (char *, int, int);
+char *copy_path(char *, int, int);
 char *get_cmd_path(config_t *, char *, char *);
 
 /* toem_errors.c */
@@ -185,7 +187,7 @@ int builtin_alias(config_t *);
 
 /*toemread_line .c */
 ssize_t get_cmd_input(config_t *);
-int read_line (config_t *, char **, size_t *);
+int read_line(config_t *, char **, size_t *);
 void handle_sigint(int);
 
 /* toem_getinfo.c */

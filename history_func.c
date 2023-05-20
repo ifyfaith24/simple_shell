@@ -131,15 +131,15 @@ int add_history_entry(config_t *config, char *buf, int linecount)
  */
 int update_hist_nums(config_t *config)
 {
-    s_array *node = config->history;
-    int new_count = 0;
+	s_array *node = config->history;
+	int new_count = 0;
+	
+	while (node)
+	{
+	node->key = new_count++;
+	node = node->next;
+	}
 
-    while (node)
-    {
-        node->key = new_count++;
-        node = node->next;
-    }
-
-    config->hist_count = new_count;
-    return new_count;
+	config->hist_count = new_count;
+	return (new_count);
 }

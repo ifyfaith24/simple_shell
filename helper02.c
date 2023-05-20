@@ -83,12 +83,12 @@ int change_vars(config_t *config)
  */
 int is_delim(char c, char *delim)
 {
-    for (int i = 0; delim[i] != '\0'; i++)
-    {
-        if (c == delim[i])
-            return 1;
-    }
-    return 0;
+	for (int i = 0; delim[i] != '\0'; i++)
+	{
+	if (c == delim[i])
+		return (1);
+	}
+	return (0);
 }
 
 /**

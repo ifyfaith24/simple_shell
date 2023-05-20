@@ -81,7 +81,7 @@ void free_config(config_t *config, int all)
  *
  * Return: the number of characters read, or -1 on failure
  */
-int read_line (config_t *config, char **ptr, size_t *length)
+int read_line(config_t *config, char **ptr, size_t *length)
 {
 	static char buf[BUF_SIZE];
 	static size_t i, len;

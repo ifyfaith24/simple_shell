@@ -79,7 +79,7 @@ char *get_env_value(config_t *config, const char *name)
  *
  * Return: pointer to new buffer
  */
-char *copy_path (char *pathsrc, int start, int stop)
+char *copy_path(char *pathsrc, int start, int stop)
 {
 	static char buf[1024];
 	int i = start, k = 0;
@@ -117,7 +117,7 @@ char *get_cmd_path(config_t *config, char *pathsrc, char *cmd)
 	{
 		if (!pathsrc[i] || pathsrc[i] == ':')
 		{
-			path = copy_path (pathsrc, curr_pos, i);
+			path = copy_path(pathsrc, curr_pos, i);
 			if (!*path)
 				_strcat(path, cmd);
 			else

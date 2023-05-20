@@ -48,7 +48,7 @@ ssize_t buf_chained_cmds(config_t *config, char **buf, size_t *len)
 		free(*buf);
 		*buf = NULL;
 		signal(SIGINT, handle_sigint);
-		r = read_line (config, buf, &len_p);
+		r = read_line(config, buf, &len_p);
 		if (r > 0)
 		{
 			if ((*buf)[r - 1] == '\n')

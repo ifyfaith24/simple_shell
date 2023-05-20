@@ -10,12 +10,12 @@ void err_puts(char *str)
 {
 	int i;
 
-    if (!str)
-        return;
-    for (i = 0; str[i] != '\0'; i++)
-    {
-        err_putchar(str[i]);
-    }
+	if (!str)
+	return;
+	for (i = 0; str[i] != '\0'; i++)
+	{
+	err_putchar(str[i]);
+	}
 }
 
 /**
