@@ -60,8 +60,8 @@ typedef struct arraylst
  * @input_fd: the fd from which to read line input
  * @hist_count: the history line number count
  */
-typedef struct config
-{
+
+typedef struct config {
 	char *arg;
 	char **argv;
 	char *path;
@@ -94,10 +94,10 @@ typedef struct config
 	NULL,     /* file_name */ \
 	NULL,     /* environ */ \
 	NULL,     /* env */ \
-	NULL,     /* history */ \
-	NULL,     /* alias */ \
 	0,        /* env_flag */ \
 	0,        /* status */ \
+	NULL,     /* history */ \
+	NULL,     /* alias */ \
 	NULL,     /* hsh_buf */ \
 	0,        /* hsh_buf_type */ \
 	0,        /* input_fd */ \
@@ -187,7 +187,7 @@ int builtin_alias(config_t *);
 
 /*toemread_line .c */
 ssize_t get_cmd_input(config_t *);
-int read_line(config_t *, char **, size_t *);
+int read_line(config_t *config, char **ptr, size_t *length);
 void handle_sigint(int);
 
 /* toem_getinfo.c */
@@ -233,6 +233,7 @@ void update_chain_pos(config_t *, char *, size_t *, size_t, size_t);
 int change_alias(config_t *);
 int change_vars(config_t *);
 int update_string(char **, char *);
+ssize_t read_input_buf(config_t *config, char *buf, size_t *len);
 
 
 #endif

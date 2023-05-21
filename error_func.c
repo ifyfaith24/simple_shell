@@ -73,11 +73,12 @@ int put_fd(char c, int fd)
 int puts_fd(char *str, int fd)
 {
 	int i = 0;
+	int j;
 
 	if (!str)
 		return (0);
 
-	for (int j = 0; str[j] != '\0'; j++)
+	for (j = 0; str[j] != '\0'; j++)
 	{
 		i += put_fd(str[j], fd);
 	}

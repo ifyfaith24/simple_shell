@@ -133,7 +133,7 @@ int update_hist_nums(config_t *config)
 {
 	s_array *node = config->history;
 	int new_count = 0;
-	
+
 	while (node)
 	{
 	node->key = new_count++;

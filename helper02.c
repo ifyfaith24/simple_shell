@@ -10,7 +10,8 @@
  *
  * Return: Void
  */
-void update_chain_pos(config_t *config, char *buf, size_t *p, size_t i, size_t len)
+void update_chain_pos(config_t *config, char *buf,
+		size_t *p, size_t i, size_t len)
 {
 	size_t j = *p;
 
@@ -83,7 +84,9 @@ int change_vars(config_t *config)
  */
 int is_delim(char c, char *delim)
 {
-	for (int i = 0; delim[i] != '\0'; i++)
+	int i;
+
+	for (i = 0; delim[i] != '\0'; i++)
 	{
 	if (c == delim[i])
 		return (1);
